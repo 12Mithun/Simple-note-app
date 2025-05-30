@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Notes App</title>
+</head>
+<body>
+  <h1>Simple Notes App</h1>
+  <textarea id="note" rows="4" cols="50" placeholder="Write a note..."></textarea><br>
+  <button onclick="addNote()">Add Note</button>
+  <h2>All Notes</h2>
+  <ul id="notesList"></ul>
+
+  <script>
+    async function addNote() {
+      const content = document.getElementById('note').value;
+      const res = await fetch('/add-note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadNotes();
+        document.getElementById('note').value = '';
+      }
+    }
+
+    async function loadNotes() {
+      const res = await fetch('/notes');
+      const data = await res.json();
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+      data.notes.forEach(note => {
+        const li = document.createElement('li');
+        li.textContent = note;
+        notesList.appendChild(li);
+      });
+    }
+
+    window.onload = loadNotes;
+  </script>
+</body>
+</html>
